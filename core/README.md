@@ -1,0 +1,1 @@
+https://sysblok.ru/courses/kak-provesti-analiz-tonalnosti-teksta/
