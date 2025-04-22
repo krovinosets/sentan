@@ -9,6 +9,7 @@ def make_plot(sentiments: list):
     plt.show()
 
 
+# Фильтр Савицкого-Голея
 def make_filtered_plot(sentiments: list):
     filtered_sentiments = savgol_filter(sentiments, window_length=len(sentiments) // 15, polyorder=0)
     plt.plot(filtered_sentiments)
@@ -17,6 +18,7 @@ def make_filtered_plot(sentiments: list):
     plt.show()
 
 
+# ансамблевый фильтр
 def ensemble_filter(data: list, n_filters=100, polyorder=0, **savgol_args) -> list:
     """
     Применяет ансамблевый фильтр к входным данным

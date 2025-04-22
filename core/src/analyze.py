@@ -1,9 +1,7 @@
-import os
 import re
 import nltk
 import psycopg2
 from pymystem3 import Mystem
-from dotenv import load_dotenv
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 

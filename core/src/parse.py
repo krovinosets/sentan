@@ -36,7 +36,7 @@ def get_recent_posts(access_token: str, group_id: int, count: int) -> list[int]:
     return posts[:count]
 
 
-def parse_vk_comments(access_token: str, group_id: int, posts_count: int, comments_limit: int = 1000) -> List[Dict]:
+def parse_vk_comments(access_token: str, group_id: int, posts_count: int, comments_limit: int = 1000) -> list[dict]:
     """Основная функция для парсинга"""
     post_ids = get_recent_posts(access_token, group_id, posts_count)
     all_comments = []
