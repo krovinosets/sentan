@@ -4,8 +4,8 @@ import nltk
 import psycopg2
 from pymystem3 import Mystem
 from dotenv import load_dotenv
-
-from src.test import estimate_sentiment, make_plot, make_filtered_plot, make_ensemble_plot
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 
 nltk.download('stopwords')
 
@@ -53,35 +53,18 @@ def lemmatize(text: str):
     return Mystem().lemmatize(text)
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    comments: list[str] = get_all_comments_text(
-        {
-            'dbname': os.getenv("DATABASE_NAME"),
-            'user': os.getenv("DATABASE_USER"),
-            'password': os.getenv("DATABASE_PASSWORD"),
-            'host': os.getenv("DATABASE_HOST"),
-            'port': os.getenv("DATABASE_PORT")
-        }
-    )
+model_checkpoint = 'cointegrated/rubert-tiny-sentiment-balanced'
+tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint)
+if torch.cuda.is_available():
+    model.cuda()
 
-    stop_words = nltk.corpus.stopwords.words('russian')
 
-    texts: list[str] = []
-    for i, comment in enumerate(comments):
-        print("_________________________")
-        cleared = clear_text(comment)
-        print(f"{i}: cleared: {cleared}")
-
-        texts.append(cleared)
-
-        # cleaned = clean_stop_words(cleared, stop_words)
-        # print(f"{i}: cleaned: {cleaned}")
-
-        # lemma = lemmatize(cleaned)
-        # print(f"{i}: lemmatize: {lemma}")
-
-    sentiments = estimate_sentiment(texts)
-    make_plot(sentiments)
-    make_filtered_plot(sentiments)
-    make_ensemble_plot(sentiments)
+def estimate_sentiment(messages: list) -> list:
+    sentiment_out = []
+    for text in messages:
+        with torch.no_grad():
+            inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True).to(model.device)
+            proba = torch.sigmoid(model(**inputs).logits).cpu().numpy()[0]
+            sentiment_out.append(proba.dot([-1, 0, 1]))
+    return sentiment_out

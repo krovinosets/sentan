@@ -1,5 +1,4 @@
 from time import sleep
-
 import psycopg2
 import requests
 
